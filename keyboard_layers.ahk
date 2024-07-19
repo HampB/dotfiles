@@ -47,7 +47,10 @@ HotIf (*) => IsKeyboardNavigationLayer
     Hotkey "*y", (*) => Send("{Blind}{PgUp}")
     Hotkey "*h", (*) => Send("{Blind}{PgDn}")
 
-    Hotkey "*g", (*) => Send("{Blind}{AppsKey}")
+    Hotkey "*e", (*) => Send("{Blind}{Browser_Back}")
+    Hotkey "*r", (*) => Send("{Blind}{Browser_Forward}")
+
+    Hotkey "*b", (*) => Send("{Blind}{AppsKey}")
 
     Hotkey "*f", (*) => Send("{Blind}{CtrlDown}")
     Hotkey "*f Up", (*) => Send("{Blind}{CtrlUp}")
@@ -68,6 +71,12 @@ HotIf (*) => IsKeyboardNavigationLayer
     Hotkey "*p", (*) => Send("{Blind}{Del}")
 
     Hotkey "*Space", (*) => Send("{Blind}{Enter}")
+
+    Hotkey "*t", (*) => Send("{Blind}{LWinDown}{AltDown}{CtrlDown}")
+    Hotkey "*t Up", (*) => Send("{Blind}{LWinUp}{AltUp}{CtrlUp}")
+
+    Hotkey "*g", (*) => Send("{Blind}{LWinDown}")
+    Hotkey "*g Up", (*) => Send("{Blind}{LWinUp}")
 
 }
 
