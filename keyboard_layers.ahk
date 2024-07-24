@@ -30,14 +30,13 @@ HotIf (*) => IsKeyboardNavigationLayer
     Hotkey "*j", (*) => Send("{Blind}{Left}")
     Hotkey "*l", (*) => Send("{Blind}{Right}")
 
-    Hotkey "*å", (*) => Send("{Blind}{Esc}")
+    Hotkey "*å", (*) => WinMinimize("A")
     Hotkey "*q", (*) => Send("{Blind}{Esc}")
 
     Hotkey "*n", (*) => Send("{Blind}{Tab}")
     Hotkey "*m", (*) => Send("{Blind}{LButton}")
     Hotkey "*,", (*) => Send("{Blind}{F6}")
     Hotkey "*.", (*) => MoveMouseToCenterOfScreen()
-    
     Hotkey "*w", (*) => Send("{Blind}{WheelUp}")
     Hotkey "*a", (*) => Send("{Blind}{WheelDown}")
 
