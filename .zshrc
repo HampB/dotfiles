@@ -26,6 +26,7 @@ setopt interactivecomments
 source $PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 source $PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+source /usr/lib/google-cloud-sdk/completion.bash.inc
 
 # Starts starship
 eval "$(starship init zsh)"
