@@ -6,11 +6,9 @@ $character
 """
 
 [env_var]
-symbol = "╭╴"
 variable = 'SHELL'
 format = "$symbol"
 disabled = false
-
 
 [os]
 format = '[$symbol](bold white) '   
@@ -26,7 +24,7 @@ show_always = true
 
 # Shows the hostname
 [hostname]
-ssh_only = false
+ssh_only = true
 format = '[//](black bold) [$hostname](bold blue) '
 disabled = false
 
@@ -39,7 +37,7 @@ style = '#7ed1fb' # yellow bold
 
 # Shows current git branch
 [git_branch]
-format = '[//](black bold) [$symbol\[$branch\]]($style) '
+format = '[//](black bold) [\[$branch\]]($style) '
 style = 'bold green'
 
 # Shows kubernetes context and namespace
