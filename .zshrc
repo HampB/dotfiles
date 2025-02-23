@@ -45,5 +45,8 @@ setopt HIST_IGNORE_DUPS
 # ignore commands that start with a space in the history
 setopt HIST_IGNORE_SPACE
 
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
 # Starts starship
 eval "$(starship init zsh)"
