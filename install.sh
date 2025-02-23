@@ -25,6 +25,9 @@ rm -rf "$PLUGINS_DIR"
 # Creates root directories if they don't exist
 mkdir -p "$HOME/.config"
 mkdir -p "$PLUGINS_DIR"
+mkdir -p "$HOME/.local"
+mkdir -p "$HOME/.local/share"
+mkdir -p "$HOME/.local/share/fonts"
 
 # Create symlinks for the dotfiles
 ln -s "$SCRIPT_DIR/.aliases" "$HOME/.aliases"
@@ -44,6 +47,10 @@ ln -s "$SCRIPT_DIR/bin" "$BIN_DIR"
 git clone https://github.com/zsh-users/zsh-autosuggestions $PLUGINS_DIR/zsh-autosuggestions
 git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git $PLUGINS_DIR/zsh-autocomplete
 git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $PLUGINS_DIR/fast-syntax-highlighting
+
+wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
+unzip Hack.zip -d $HOME/.local/share/fonts
+rm Hack.zip
 
 # Install starship
 curl -sS https://starship.rs/install.sh | sh -s -- -y
