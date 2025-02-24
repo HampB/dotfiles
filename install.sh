@@ -48,6 +48,7 @@ git clone https://github.com/zsh-users/zsh-autosuggestions $PLUGINS_DIR/zsh-auto
 git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git $PLUGINS_DIR/zsh-autocomplete
 git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $PLUGINS_DIR/fast-syntax-highlighting
 
+
 wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
 unzip Hack.zip -d $HOME/.local/share/fonts
 rm Hack.zip
@@ -57,6 +58,10 @@ curl -sS https://starship.rs/install.sh | sh -s -- -y
 
 # Change the default shell to zsh
 sudo chsh -s "$ZSH_PATH"
+
+# Install dbt completion
+curl https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash > ~/.dbt-completion.bash
+export DBT_MANIFEST_PATH="/workspaces/TheDataNest/transformation/dbt/target/manifest.json"
 
 # Check if the shell was changed successfully
 if [ $? -eq 0 ]; then

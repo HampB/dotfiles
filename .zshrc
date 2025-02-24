@@ -30,6 +30,11 @@ if command -v gcloud &> /dev/null; then
     source /usr/lib/google-cloud-sdk/completion.bash.inc
 fi
 
+# dbt completion
+echo 'autoload -U +X compinit && compinit' >> ~/.zshrc
+echo 'autoload -U +X bashcompinit && bashcompinit' >> ~/.zshrc
+echo 'source ~/.dbt-completion.bash' >> ~/.zshrc
+
 # enable comments "#" expressions in the prompt shell
 setopt INTERACTIVE_COMMENTS
 
