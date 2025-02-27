@@ -127,4 +127,7 @@ HotIf (*) => IsKeyboardSymbolsLayer
 
     Hotkey "*Space", (*) => SendText("_")
 
+    Hotkey "*ö", (*) => SendText("``")
+    Hotkey "*k", (*) => SendText("/")
+    Hotkey "*l", (*) => SendText("\")
 }
