@@ -30,10 +30,6 @@ if command -v gcloud &> /dev/null; then
     source /usr/lib/google-cloud-sdk/completion.bash.inc
 fi
 
-# dbt completion
-autoload -U +X compinit && compinit
-autoload -U +X bashcompinit && bashcompinit
-
 if command -v dbt &> /dev/null; then
     source ~/.dbt-completion.bash
 fi
@@ -65,6 +61,12 @@ fi
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
+
+# dbt completion
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+autoload -Uz compinit
+compinit
 
 # Starts starship
 eval "$(starship init zsh)"
