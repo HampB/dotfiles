@@ -32,6 +32,9 @@ fi
 
 if command -v dbt &> /dev/null; then
     source ~/.dbt-completion.bash
+    dbts() {
+        dbt show --select "$1" --limit 1 --output json
+    }
 fi
 
 # enable comments "#" expressions in the prompt shell
