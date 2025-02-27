@@ -31,9 +31,12 @@ if command -v gcloud &> /dev/null; then
 fi
 
 # dbt completion
-echo 'autoload -U +X compinit && compinit' >> ~/.zshrc
-echo 'autoload -U +X bashcompinit && bashcompinit' >> ~/.zshrc
-echo 'source ~/.dbt-completion.bash' >> ~/.zshrc
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+
+if command -v dbt &> /dev/null; then
+    source ~/.dbt-completion.bash
+fi
 
 # enable comments "#" expressions in the prompt shell
 setopt INTERACTIVE_COMMENTS
@@ -52,6 +55,16 @@ setopt HIST_IGNORE_SPACE
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+
+if command -v gh &> /dev/null; then
+    mkdir -p ~/.zsh/completions
+    fpath+=~/.zsh/completions
+    gh completion -s zsh > ~/.zsh/completions/_gh
+fi
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
 
 # Starts starship
 eval "$(starship init zsh)"
