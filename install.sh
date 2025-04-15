@@ -54,6 +54,14 @@ git clone --depth 1 https://github.com/junegunn/fzf.git $PLUGINS_DIR/fzf
 
 $PLUGINS_DIR/fzf/install
 
+
+# Install httpie
+curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list > /dev/null
+sudo apt update
+sudo apt install httpie
+
+#install unzip
 sudo apt-get install zip unzip
 
 wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip

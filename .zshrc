@@ -80,8 +80,12 @@ autoload -U +X bashcompinit && bashcompinit
 autoload -Uz compinit
 compinit
 
+# Starts zoxide
+eval "$(zoxide init zsh)"
+
 # Starts starship
 eval "$(starship init zsh)"
+
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
