@@ -1,0 +1,18 @@
+set shell zsh
+
+set scrolloff 10
+
+map . set hidden!
+
+map a :push %mkdir<space>
+map <enter> shell
+
+map o &code $f
+# map O $mimeopen --ask $f
+
+cmd open &{{
+    case $(file --mime-type -Lb $f) in
+        text/*) lf -remote "send $id \$$EDITOR \$fx";;
+        *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
