@@ -33,7 +33,6 @@ source $PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-export FZF_DEFAULT_COMMAND='find .'
 
 if command -v gcloud &> /dev/null; then
     source /usr/lib/google-cloud-sdk/completion.bash.inc
@@ -94,3 +93,5 @@ eval "$(starship init zsh)"
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -21,6 +21,9 @@ alias gaa='git add -A'
 alias gsw='git switch'
 alias gswm='git switch main'
 
+alias .fzf='find . | fzf'
+alias cfzf='code $(fzf)'
+
 lfcd () {
     cd "$(command lf -print-last-dir "$@")"
 }

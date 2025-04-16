@@ -52,10 +52,11 @@ git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git $PL
 git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $PLUGINS_DIR/fast-syntax-highlighting
 git clone --depth 1 https://github.com/junegunn/fzf.git $PLUGINS_DIR/fzf
 
-$PLUGINS_DIR/fzf/install
+yes | $PLUGINS_DIR/fzf/install --all
 
 
 # Install httpie
+sudo rm -rf /usr/share/keyrings/httpie.gpg
 curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
 echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list > /dev/null
 sudo apt update
