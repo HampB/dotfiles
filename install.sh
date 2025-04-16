@@ -69,6 +69,9 @@ wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
 unzip -o Hack.zip -d $HOME/.local/share/fonts
 rm Hack.zip
 
+# install zoxide
+curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+
 # install lf
 curl -sS https://webi.sh/lf | sh; 
 
