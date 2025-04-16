@@ -86,7 +86,7 @@ eval "$(zoxide init zsh)"
 # Starts starship
 eval "$(starship init zsh)"
 
+. "$HOME/.local/bin/env"
+
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

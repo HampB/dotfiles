@@ -20,3 +20,7 @@ alias ga='git add '
 alias gaa='git add -A'
 alias gsw='git switch'
 alias gswm='git switch main'
+
+lfcd () {
+    cd "$(command lf -print-last-dir "$@")"
+}
