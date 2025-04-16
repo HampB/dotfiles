@@ -74,6 +74,10 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 
+lfcd () {
+    cd "$(command lf -print-last-dir "$@")"
+}
+
 # dbt completion
 autoload -U +X compinit && compinit
 autoload -U +X bashcompinit && bashcompinit

@@ -16,3 +16,18 @@ cmd open &{{
         *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
     esac
 }}
+
+cmd delete ${{
+    set -f
+    printf "$fx\n"
+    printf "delete?[y/n]"
+    read ans
+    [ "$ans" = "y" ] && rm -rf $fx
+}}
+
+map <delete> delete
+
+lfcd () {
+    # `command` is needed in case `lfcd` is aliased to `lf`
+    cd "$(command lf -print-last-dir "$@")"
+}
