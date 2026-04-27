@@ -1,95 +1,96 @@
 #!/bin/sh
 
-# Check if zsh is installed and do nothing if not
-if ! command -v zsh >/dev/null 2>&1; then
-  echo "zsh is not installed. Please install zsh and rerun this script."
-  exit 1
-fi
-
-# Get the path of zsh
-ZSH_PATH=$(which zsh)
+set -eu
 
 PLUGINS_DIR="$HOME/.zsh_addons"
-BIN_DIR="$HOME/bin"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-# Get the directory of the script
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
-# copies dotfiles
+ensure_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Missing required command: $1"
+    exit 1
+  fi
+}
 
-# Remove existing files if they exist
-rm -f "$HOME/.aliases"
-rm -f "$HOME/.zshrc"
-rm -f "$HOME/.config/starship.toml"
-rm -f "$HOME/.config/lf/lfrc"
-rm -rf "$PLUGINS_DIR"
+link_file() {
+  src="$1"
+  dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  rm -f "$dest"
+  ln -s "$src" "$dest"
+}
 
-# Creates root directories if they don't exist
-mkdir -p "$HOME/.config"
-mkdir -p "$HOME/.config/lf"
-mkdir -p "$PLUGINS_DIR"
-mkdir -p "$HOME/.local"
-mkdir -p "$HOME/.local/share"
-mkdir -p "$HOME/.local/share/fonts"
+clone_or_update() {
+  repo="$1"
+  target="$2"
 
-# Create symlinks for the dotfiles
-ln -s "$SCRIPT_DIR/.aliases" "$HOME/.aliases"
-ln -s "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
+  if [ -d "$target/.git" ]; then
+    git -C "$target" pull --ff-only >/dev/null 2>&1 || true
+  else
+    rm -rf "$target"
+    git clone --depth 1 "$repo" "$target"
+  fi
+}
 
+ensure_cmd zsh
+ensure_cmd git
+ensure_cmd curl
 
-# Create a symlink for the starship configuration
-ln -s "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-ln -s "$SCRIPT_DIR/.config/lf/lfrc" "$HOME/.config/lf/lfrc"
+mkdir -p "$HOME/.config/lf" "$PLUGINS_DIR" "$HOME/.local/share/fonts"
 
-# if [ -d "$BIN_DIR" ]; then 
-#   echo "Bin ($BIN_DIR) directory already exists. Removing it..."
-#   rm -rf "$BIN_DIR"
-# fi
-# Create a symlink for the bin directory
-# ln -s "$SCRIPT_DIR/bin" "$BIN_DIR"
+link_file "$SCRIPT_DIR/.aliases" "$HOME/.aliases"
+link_file "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
+link_file "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+link_file "$SCRIPT_DIR/.config/lf/lfrc" "$HOME/.config/lf/lfrc"
 
-git clone https://github.com/zsh-users/zsh-autosuggestions $PLUGINS_DIR/zsh-autosuggestions
-git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git $PLUGINS_DIR/zsh-autocomplete
-git clone https://github.com/zdharma-continuum/fast-syntax-highlighting $PLUGINS_DIR/fast-syntax-highlighting
-git clone --depth 1 https://github.com/junegunn/fzf.git $PLUGINS_DIR/fzf
+clone_or_update "https://github.com/zsh-users/zsh-autosuggestions" "$PLUGINS_DIR/zsh-autosuggestions"
+clone_or_update "https://github.com/marlonrichert/zsh-autocomplete.git" "$PLUGINS_DIR/zsh-autocomplete"
+clone_or_update "https://github.com/zdharma-continuum/fast-syntax-highlighting" "$PLUGINS_DIR/fast-syntax-highlighting"
+clone_or_update "https://github.com/junegunn/fzf.git" "$PLUGINS_DIR/fzf"
 
-yes | $PLUGINS_DIR/fzf/install --all
-
-
-# Install httpie
-# sudo rm -rf /usr/share/keyrings/httpie.gpg
-# curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
-# echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list > /dev/null
-# sudo apt update
-# sudo apt install httpie
-
-#install unzip
-apt-get install zip unzip
-
-wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
-unzip -o Hack.zip -d $HOME/.local/share/fonts
-rm Hack.zip
-
-# install zoxide
-curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
-
-# install lf
-curl -sS https://webi.sh/lf | sh; 
-
-# Install starship
-curl -sS https://starship.rs/install.sh | sh -s -- -y
-
-# Change the default shell to zsh
-sudo chsh -s "$ZSH_PATH"
-
-# Install dbt completion
-curl https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash > ~/.dbt-completion.bash
-export DBT_MANIFEST_PATH="/workspaces/TheDataNest/transformation/dbt/target/manifest.json"
-
-# Check if the shell was changed successfully
-if [ $? -eq 0 ]; then
-  echo "Successfully changed the default shell to zsh."
-  echo "Please log out and log back in for the changes to take effect."
-else
-  echo "Failed to change the default shell."
-  exit 1
+if [ -x "$PLUGINS_DIR/fzf/install" ]; then
+  "$PLUGINS_DIR/fzf/install" --all --no-bash --no-fish
 fi
+
+if command -v apt-get >/dev/null 2>&1; then
+  APT_PREFIX=""
+  if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+      APT_PREFIX="sudo"
+    else
+      echo "Skipping apt install (not root and sudo is unavailable)."
+    fi
+  fi
+
+  if [ "$(id -u)" -eq 0 ] || [ -n "$APT_PREFIX" ]; then
+    $APT_PREFIX apt-get update -y
+    $APT_PREFIX apt-get install -y zip unzip ripgrep
+  fi
+fi
+
+if command -v wget >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then
+  tmp_zip="$(mktemp /tmp/hack-nerd-font.XXXXXX.zip)"
+  wget -qO "$tmp_zip" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+  unzip -o "$tmp_zip" -d "$HOME/.local/share/fonts" >/dev/null
+  rm -f "$tmp_zip"
+fi
+
+curl -sSfL "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh" | sh
+curl -sS "https://webi.sh/lf" | sh
+curl -sS "https://starship.rs/install.sh" | sh -s -- -y
+
+curl -fsSL "https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash" -o "$HOME/.dbt-completion.bash"
+
+if [ "${1:-}" = "--chsh" ]; then
+  ZSH_PATH=$(command -v zsh)
+  if command -v chsh >/dev/null 2>&1; then
+    sudo chsh -s "$ZSH_PATH" "$USER"
+    echo "Default shell updated to $ZSH_PATH"
+  else
+    echo "chsh not available, skipping default shell change."
+  fi
+else
+  echo "Skipped default shell change. Re-run with --chsh to enable it."
+fi
+
+echo "Dotfiles install complete. Start a new shell session to load changes."

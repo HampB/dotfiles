@@ -28,9 +28,9 @@ setopt interactivecomments
 # this can be used to set aliases for your specific environment
 [[ -f $HOME/.aliases.local ]] && source $HOME/.aliases.local
 
-source $PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-source $PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+[ -f "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ] && source "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+[ -f "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && source "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+[ -f "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ] && source "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
 
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
@@ -39,14 +39,11 @@ if command -v gcloud &> /dev/null; then
 fi
 
 if command -v dbt &> /dev/null; then
-    source ~/.dbt-completion.bash
+    [ -f ~/.dbt-completion.bash ] && source ~/.dbt-completion.bash
     dbts() {
         dbt show --select "$1" --limit 1 --output json
     }
 fi
-
-# enable comments "#" expressions in the prompt shell
-setopt INTERACTIVE_COMMENTS
 
 # append new history entries to the history file
 setopt APPEND_HISTORY
@@ -77,21 +74,42 @@ lfcd () {
     cd "$(command lf -print-last-dir "$@")"
 }
 
-# dbt completion
-autoload -U +X compinit && compinit
-autoload -U +X bashcompinit && bashcompinit
 autoload -Uz compinit
 compinit
+autoload -U +X bashcompinit && bashcompinit
+
+if [ -x "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" ]; then
+    export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+elif command -v xdg-open >/dev/null 2>&1; then
+    export BROWSER="$(command -v xdg-open)"
+fi
 
 # Starts zoxide
-eval "$(zoxide init zsh)"
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
 
 # Starts starship
-eval "$(starship init zsh)"
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
 
-. "$HOME/.local/bin/env"
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+if command -v uv >/dev/null 2>&1; then
+    eval "$(uv generate-shell-completion zsh)"
+fi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$HOME/.npm-global/bin:$PATH"
