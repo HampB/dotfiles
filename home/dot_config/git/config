@@ -1,0 +1,33 @@
+# Shared git config for Windows, Linux/WSL and devcontainers.
+#
+# Git reads this (~/.config/git/config) *and* ~/.gitconfig. Identity (user.name /
+# user.email) and machine-specific settings stay in ~/.gitconfig, which is not
+# tracked: that keeps the email out of this public repo, and VS Code copies
+# ~/.gitconfig into devcontainers by itself.
+
+[init]
+    defaultBranch = main
+
+[push]
+    # `git push` on a new branch sets upstream automatically (no --set-upstream dance)
+    autoSetupRemote = true
+
+[fetch]
+    # drop local refs to branches deleted on the remote
+    prune = true
+
+# Same shortcuts as the zsh aliases (gs, gaa, gsw, ...), but as `git <alias>` so they
+# also work in PowerShell and anywhere else git runs.
+[alias]
+    st  = status
+    ss  = status -s
+    pl  = pull
+    ps  = push
+    nb  = checkout -b
+    c   = commit
+    ca  = commit -a
+    a   = add
+    aa  = add -A
+    sw  = switch
+    swm = switch main
+    lg  = log --oneline --graph --decorate -20
