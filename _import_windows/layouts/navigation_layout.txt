@@ -1,0 +1,6 @@
+[{a:6},"Esc","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12",{a:5},"PrtSc\nNmLk","Pause\nScrLk","Delete\nInsert"],
+[{a:4},"~\n`","!\n1","@\n2","#\n3","$\n4","%\n5","^\n6","&\n7","*\n8","(\n9",")\n0","+\n\n\n\n\n\n\n\n?","´ `",{a:6,w:2},"Backspace","Home"],
+[{a:4,w:1.5},"Tab",{c:"#e26757"},"Esc\nQ",{c:"#d290b4"},"Wheel Up\nW",{c:"#ffb07b"},"Browser Back\nE","Browser Forward\nR",{c:"#cccccc"},"\nT",{c:"#ffb07b"},"Page Up\nY","Home\nU",{c:"#ff7f22"},"Up\nI",{c:"#ffb07b"},"End\nO",{c:"#e26757"},"Del\nP","Esc\nÅ",{c:"#cccccc",a:5},"¨ ^",{x:0.25,a:6,w:1.25,h:2,w2:1.5,h2:1,x2:-0.25},"Enter","Page Up"],
+[{c:"#408fb3",a:4,w:1.75},"Layer",{c:"#d290b4"},"Wheel Down\nA",{c:"#d5d54b"},"Alt\nS","Shift\nD","Ctrl\nF",{c:"#6ca29d"},"Apps Key\nG",{c:"#ffb07b"},"Page Down\nH",{c:"#ff7f22"},"Left\nJ","Down\nK","Right\nL",{c:"#e26757"},"Back Space\nÖ",{c:"#cccccc"},"\nÄ","' *",{x:1.25,a:6},"Page Down"],
+[{w:2.25},"Shift",{c:"#ffe08d",a:4},"Undo\nZ","Cut\nX","Copy\nC","Paste\nV",{c:"#cccccc"},"\nB",{c:"#6ca29d"},"Tab\nN",{c:"#d290b4"},"Left Click\nM",{c:"#6ca29d"},"F6\n, ;",{c:"#d290b4"},"Center Mouse\n. :",{c:"#cccccc"},"?\n/",{a:6,w:1.75},"Shift",{a:7},"↑",{a:6},"End"],
+[{w:1.25},"Ctrl",{w:1.25},"Win",{w:1.25},"Alt",{c:"#45b866",a:7,w:6.25},"Enter",{c:"#cccccc",a:6},"Alt","Fn","Ctrl",{a:7},"←","↓","→"]
