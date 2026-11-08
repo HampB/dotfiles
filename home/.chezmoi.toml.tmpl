@@ -1,2 +1,7 @@
 {{- /* Remember where this checkout lives, so plain `chezmoi apply/edit/cd` work after install. */ -}}
 sourceDir = {{ .chezmoi.workingTree | quote }}
+
+[add]
+    # This repo is public: refuse `chezmoi add` on files that look like they contain
+    # secrets (tokens, keys, passwords). Use `chezmoi add --encrypt` for those instead.
+    secrets = "error"

@@ -1,0 +1,15 @@
+# This repo is public. Never commit secrets in plain text: use `chezmoi add --encrypt`
+# (see README "Secrets"). These patterns catch the usual suspects by accident.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+!*.pub
+.git-credentials
+*credentials*.json
+*.age-key
+key.txt

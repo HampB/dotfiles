@@ -10,6 +10,7 @@ Replaces [devcontainer-dotfiles](https://github.com/HampB/devcontainer-dotfiles)
 | | Windows | Linux / WSL / devcontainer |
 |---|---|---|
 | Prompt: starship (`dot_config/starship.toml`) | ✓ | ✓ |
+| Git: aliases + defaults (`dot_config/git/config`) | ✓ | ✓ |
 | Shell: zsh, aliases, plugins, lf | | ✓ |
 | Keyboard layers: AutoHotkey (`AppData/Roaming/keyboard_layers`) | ✓ | |
 | Tiling WM: GlazeWM (`dot_glzr/glazewm`) | ✓ | |
@@ -58,6 +59,47 @@ chezmoi cd                # jump to the repo to commit/push
 ```
 
 Machine-specific aliases go in `~/.aliases.local` (not tracked).
+
+## Git
+
+Shared settings and aliases live in `~/.config/git/config`, which git reads alongside
+`~/.gitconfig`. Your identity stays in the untracked `~/.gitconfig` on each machine:
+
+```sh
+git config --global user.name  "HampB"
+git config --global user.email "you@example.com"
+```
+
+Aliases: `git st`, `ss`, `pl`, `ps`, `nb`, `c`, `ca`, `a`, `aa`, `sw`, `swm`, `lg`. These are the same shortcuts
+as the zsh `gs`/`gaa`/… aliases, but they also work in PowerShell.
+
+## Secrets
+
+This repo is **public**. Several things guard against leaking a secret:
+
+- `chezmoi add` refuses files that look like they contain secrets (`add.secrets = "error"`).
+- `.gitignore` blocks common secret files (`.env`, keys, `.git-credentials`, …).
+- GitHub push protection rejects pushes that contain known token formats.
+- A gitleaks workflow scans every push for generic secrets too.
+
+To track a file that *does* contain a secret, encrypt it with [age](https://chezmoi.io/user-guide/encryption/age/):
+
+```sh
+chezmoi age-keygen --output ~/.config/chezmoi/key.txt   # once; prints the public key
+```
+
+Add this to `home/.chezmoi.toml.tmpl` (public key only; the private key never goes in the repo):
+
+```toml
+encryption = "age"
+[age]
+    identity  = "~/.config/chezmoi/key.txt"
+    recipient = "age1..."
+```
+
+Then use `chezmoi add --encrypt <file>`. Copy `key.txt` to each machine through a safe channel,
+such as a password manager. For a single token, chezmoi can also read it straight from a password manager in a template
+(`{{ onepassword ... }}`, `{{ bitwarden ... }}`, …) instead of storing it at all.
 
 ## Keyboard layers
 
