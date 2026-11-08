@@ -1,39 +1,59 @@
 {{- if ne .chezmoi.os "windows" -}}
 #!/bin/sh
 # Linux / WSL / devcontainer tooling. Re-runs whenever this script changes.
+# Tools that are already installed are skipped, so container builds stay fast.
+# To upgrade them, use their own updaters (e.g. `starship` via its installer, `webi lf`).
 set -eu
 
-mkdir -p "$HOME/.local/share/fonts" "$HOME/.local/bin"
+has() { command -v "$1" >/dev/null 2>&1; }
+in_container() {
+  [ -f /.dockerenv ] || [ -f /run/.containerenv ] || [ -n "${REMOTE_CONTAINERS:-}" ] || [ -n "${CODESPACES:-}" ]
+}
+in_wsl() { grep -qi microsoft /proc/version 2>/dev/null; }
+
+mkdir -p "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"   # installers put binaries here; needed for the has() checks
 
 # fzf key bindings + completion (repo is cloned via .chezmoiexternal.toml)
 if [ -x "$HOME/.zsh_addons/fzf/install" ]; then
-  "$HOME/.zsh_addons/fzf/install" --all --no-bash --no-fish --no-update-rc
+  "$HOME/.zsh_addons/fzf/install" --all --no-bash --no-fish --no-update-rc >/dev/null
 fi
 
-if command -v apt-get >/dev/null 2>&1; then
+# apt packages: only touch apt (and its slow `update`) if something is missing
+missing=""
+for pkg in zip unzip rg; do has "$pkg" || missing="$missing $pkg"; done
+if [ -n "$missing" ] && has apt-get; then
   SUDO=""
   if [ "$(id -u)" -ne 0 ]; then
-    if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO="skip"; fi
+    if has sudo; then SUDO="sudo"; else SUDO="skip"; fi
   fi
   if [ "$SUDO" = "skip" ]; then
-    echo "Skipping apt install (not root and sudo is unavailable)."
+    echo "Skipping apt install of$missing (not root and sudo is unavailable)."
   else
     $SUDO apt-get update -y
     $SUDO apt-get install -y zip unzip ripgrep
   fi
 fi
 
-if command -v wget >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then
-  tmp_zip="$(mktemp /tmp/hack-nerd-font.XXXXXX.zip)"
-  wget -qO "$tmp_zip" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
-  unzip -o "$tmp_zip" -d "$HOME/.local/share/fonts" >/dev/null
-  rm -f "$tmp_zip"
+# Nerd Font: only useful where this machine renders the terminal itself.
+# In containers and WSL the font comes from the host (Windows Terminal / VS Code).
+if ! in_container && ! in_wsl && has wget && has unzip; then
+  if ! ls "$HOME/.local/share/fonts"/HackNerdFont-* >/dev/null 2>&1; then
+    mkdir -p "$HOME/.local/share/fonts"
+    tmp_zip="$(mktemp /tmp/hack-nerd-font.XXXXXX.zip)"
+    wget -qO "$tmp_zip" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+    unzip -o "$tmp_zip" -d "$HOME/.local/share/fonts" >/dev/null
+    rm -f "$tmp_zip"
+    has fc-cache && fc-cache -f "$HOME/.local/share/fonts" >/dev/null
+  fi
 fi
 
-curl -sSfL "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh" | sh
-curl -sS "https://webi.sh/lf" | sh
-curl -sS "https://starship.rs/install.sh" | sh -s -- -y -b "$HOME/.local/bin"
+has zoxide   || curl -sSfL "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh" | sh
+has lf       || curl -sS "https://webi.sh/lf" | sh
+has starship || curl -sS "https://starship.rs/install.sh" | sh -s -- -y -b "$HOME/.local/bin"
 
-curl -fsSL "https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash" \
-  -o "$HOME/.dbt-completion.bash"
+if [ ! -f "$HOME/.dbt-completion.bash" ]; then
+  curl -fsSL "https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash" \
+    -o "$HOME/.dbt-completion.bash"
+fi
 {{- end }}
