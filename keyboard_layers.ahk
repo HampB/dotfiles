@@ -6,6 +6,18 @@ SendMode "Event"
 Komorebic(cmd) {
     RunWait(format("komorebic {}", cmd), , "Hide")
 }
+Glazewm(cmd, cmd2 := "") {
+    RunWait(format("glazewm.exe command {}", cmd), , "Hide")
+    if (cmd2 != "") {
+        RunWait(format("glazewm command {}", cmd2), , "Hide")
+    }
+}
+LaunchPowerShell() {
+    Run("powershell.exe", EnvGet("USERPROFILE"))
+}
+LaunchDebian() {
+    Run("wsl.exe ~", )
+}
 
 ; NAV LAYER
 IsKeyboardNavigationLayer := false
@@ -33,7 +45,7 @@ HotIf (*) => IsKeyboardNavigationLayer
     Hotkey "*j", (*) => Send("{Blind}{Left}")
     Hotkey "*l", (*) => Send("{Blind}{Right}")
 
-    Hotkey "*å", (*) => Komorebic("minimize")
+    Hotkey "*å", (*) => Glazewm("minimize")
     Hotkey "*q", (*) => Send("{Blind}{Esc}")
 
     Hotkey "*n", (*) => Send("{Blind}{Tab}")
@@ -138,68 +150,99 @@ HotIf (*) => IsKeyboardSymbolsLayer
 
 HotIf (*) => !IsKeyboardNavigationLayer && !IsKeyboardSymbolsLayer
 {
-    Hotkey "!q", (*) => Komorebic("close")
-    Hotkey "!m", (*) => Komorebic("minimize")
+
+    Hotkey "!Enter", (*) => LaunchDebian()
+    Hotkey "!+Enter", (*) => LaunchPowerShell()
 
     ; Focus windows
-    Hotkey "!j", (*) => Komorebic("focus left")
-    Hotkey "!k", (*) => Komorebic("focus down")
-    Hotkey "!i", (*) => Komorebic("focus up")
-    Hotkey "!l", (*) => Komorebic("focus right")
+    Hotkey "!j", (*) => Glazewm("focus --direction left")
+    Hotkey "!k", (*) => Glazewm("focus --direction down")
+    Hotkey "!i", (*) => Glazewm("focus --direction up")
+    Hotkey "!l", (*) => Glazewm("focus --direction right")
 
     ; !+[::Komorebic("cycle-focus previous")
     ; !+]::Komorebic("cycle-focus next")
 
-    ; ; Move windows
-    Hotkey "!+j", (*) => Komorebic("move left")
-    Hotkey "!+k", (*) => Komorebic("move down")
-    Hotkey "!+i", (*) => Komorebic("move up")
-    Hotkey "!+l", (*) => Komorebic("move right")
+    ; Move windows
+    Hotkey "!+j", (*) => Glazewm("move --direction left")
+    Hotkey "!+k", (*) => Glazewm("move --direction down")
+    Hotkey "!+i", (*) => Glazewm("move --direction up")
+    Hotkey "!+l", (*) => Glazewm("move --direction right")
 
-    ; Stack windows
-    Hotkey "!^j", (*) => Komorebic("stack left")
-    Hotkey "!^k", (*) => Komorebic("stack down")
-    Hotkey "!^i", (*) => Komorebic("stack up")
-    Hotkey "!^l", (*) => Komorebic("stack right")
-    Hotkey "!p", (*) => Komorebic("unstack")
-    Hotkey "!^p", (*) => Komorebic("unstack")
+    ; Resize windows
+    Hotkey "!+^k", (*) => Glazewm("resize --height -2%")
+    Hotkey "!+^i", (*) => Glazewm("resize --height +2%")
+    Hotkey "!+^l", (*) => Glazewm("resize --width +2%")
+    Hotkey "!+^j", (*) => Glazewm("resize --width -2%")
+    ; ; Stack windows
+    ; Hotkey "!^j", (*) => Komorebic("stack left")
+    ; Hotkey "!^k", (*) => Komorebic("stack down")
+    ; Hotkey "!^i", (*) => Komorebic("stack up")
+    ; Hotkey "!^l", (*) => Komorebic("stack right")
+    ; Hotkey "!p", (*) => Komorebic("unstack")
+    ; Hotkey "!^p", (*) => Komorebic("unstack")
 
-    Hotkey "!^o", (*) => Komorebic("cycle-stack next")
-    Hotkey "!^u", (*) => Komorebic("cycle-stack previous")
+    ; Hotkey "!^o", (*) => Komorebic("cycle-stack next")
+    ; Hotkey "!^u", (*) => Komorebic("cycle-stack previous")
 
     ; Hotkey "!u", (*) => Komorebic("cycle-monitor next")
     ; Hotkey "!o", (*) => Komorebic("cycle-monitor previous")
 
-    Hotkey "!+^o", (*) => Komorebic("cycle-layout next")
-    Hotkey "!+^u", (*) => Komorebic("cycle-layout previous")
+    ; Hotkey "!+^o", (*) => Komorebic("cycle-layout next")
+    ; Hotkey "!+^u", (*) => Komorebic("cycle-layout previous")
 
     ; workspaces
-    Hotkey "!o", (*) => Komorebic("cycle-workspace next")
-    Hotkey "!u", (*) => Komorebic("cycle-workspace previous")
-    Hotkey "!+u", (*) => Komorebic("close-workspace")
-    Hotkey "!+o", (*) => Komorebic("new-workspace")
-    Hotkey "!+1", (*) => Komorebic("move-to-workspace 0")
-    Hotkey "!+2", (*) => Komorebic("move-to-workspace 1")
-    Hotkey "!+3", (*) => Komorebic("move-to-workspace 2")
-    Hotkey "!+4", (*) => Komorebic("move-to-workspace 3")
-    Hotkey "!+5", (*) => Komorebic("move-to-workspace 4")
-    Hotkey "!+6", (*) => Komorebic("move-to-workspace 5")
+    Hotkey "!o", (*) => Glazewm("focus --next-active-workspace-on-monitor")
+    Hotkey "!u", (*) => Glazewm("focus --prev-active-workspace-on-monitor")
+    ; Hotkey "!+u", (*) => Komorebic("close-workspace")
+    ; Hotkey "!+o", (*) => Komorebic("new-workspace")
+    Hotkey "!+1", (*) => Glazewm("move --workspace 1", "focus --workspace 1")
+    Hotkey "!+2", (*) => Glazewm("move --workspace 2", "focus --workspace 2")
+    Hotkey "!+3", (*) => Glazewm("move --workspace 3", "focus --workspace 3")
+    Hotkey "!+4", (*) => Glazewm("move --workspace 4", "focus --workspace 4")
+    Hotkey "!+5", (*) => Glazewm("move --workspace 5", "focus --workspace 5")
+    Hotkey "!+6", (*) => Glazewm("move --workspace 6", "focus --workspace 6")
+    Hotkey "!+7", (*) => Glazewm("move --workspace 7", "focus --workspace 7")
+    Hotkey "!+8", (*) => Glazewm("move --workspace 8", "focus --workspace 8")
+    Hotkey "!+9", (*) => Glazewm("move --workspace 9", "focus --workspace 9")
 
+    Hotkey "!1", (*) => Glazewm("focus --workspace 1")
+    Hotkey "!2", (*) => Glazewm("focus --workspace 2")
+    Hotkey "!3", (*) => Glazewm("focus --workspace 3")
+    Hotkey "!4", (*) => Glazewm("focus --workspace 4")
+    Hotkey "!5", (*) => Glazewm("focus --workspace 5")
+    Hotkey "!6", (*) => Glazewm("focus --workspace 6")
+    Hotkey "!7", (*) => Glazewm("focus --workspace 7")
+    Hotkey "!8", (*) => Glazewm("focus --workspace 8")
+    Hotkey "!9", (*) => Glazewm("focus --workspace 9")
 
+    HotKey "!+u", (*) => Glazewm("move-workspace --direction left")
+    HotKey "!+o", (*) => Glazewm("move-workspace --direction right")
 
     ; Resize
-    Hotkey "!SC00C", (*) => Komorebic("resize-axis horizontal increase")
-    Hotkey "!-", (*) => Komorebic("resize-axis horizontal decrease")
-    Hotkey "!+SC00C", (*) => Komorebic("resize-axis vertical increase")
-    Hotkey "!+_", (*) => Komorebic("resize-axis vertical decrease")
+    ; Hotkey "!SC00C", (*) => Komorebic("resize-axis horizontal increase")
+    ; Hotkey "!-", (*) => Komorebic("resize-axis horizontal decrease")
+    ; Hotkey "!+SC00C", (*) => Komorebic("resize-axis vertical increase")
+    ; Hotkey "!+_", (*) => Komorebic("resize-axis vertical decrease")
 
     ; ; Manipulate windows
-    Hotkey "!t", (*) => Komorebic("toggle-float")
-    Hotkey "!f", (*) => Komorebic("toggle-monocle")
-    Hotkey "!Space", (*) => Komorebic("promote")
+    Hotkey "!q", (*) => Glazewm("close")
+    Hotkey "!m", (*) => Glazewm("toggle-minimized")
+
+    Hotkey "!t", (*) => Glazewm("toggle-tiling")
+    Hotkey "!f", (*) => Glazewm("toggle-fullscreen")
+    Hotkey "!v", (*) => Glazewm("toggle-tiling-direction")
+    Hotkey "!+Space", (*) => Glazewm("toggle-floating")
+    Hotkey "!+e", (*) => Glazewm("wm-exit")
+    Hotkey "!+r", (*) => Glazewm("wm-reload-config")
+    Hotkey "!+w", (*) => Glazewm("wm-redraw")
+    Hotkey "!Space", (*) => Glazewm("wm-cycle-focus")
+
+
+    ; Hotkey "!Space", (*) => Komorebic("promote")
 
     ; ; Window manager options
-    Hotkey "!+r", (*) => Komorebic("retile")
+    ; Hotkey "!+r", (*) => Komorebic("retile")
     ; Hotkey "!p", (*) => Komorebic("toggle-pause")
 
     ; ; Layouts
