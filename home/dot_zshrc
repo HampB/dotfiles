@@ -1,115 +1,133 @@
 #!/bin/zsh
+# Measure startup: time zsh -i -c exit   (profile: zmodload zsh/zprof at the top, zprof at the bottom)
 
 # ensures $SHELL is also set to zsh
 export SHELL=/bin/zsh
 
-# adds home bin folder to path, if it already wasn't there
-if ! [[ ":$PATH:" == *":$HOME/bin:"* ]]; then
-    export PATH="$HOME/bin:$PATH"
-fi
-
-# adds local home bin folder to path, if it already wasn't there
-if ! [[ ":$PATH:" == *":$HOME/.local/bin:"* ]]; then
-    export PATH="$HOME/.local/bin:$PATH"
-fi
+# PATH: no duplicates, home bins first
+typeset -U path PATH
+path=("$HOME/bin" "$HOME/.local/bin" $path "$HOME/.npm-global/bin")
 
 PLUGINS_DIR="$HOME/.zsh_addons"
-if [ ! -d $PLUGINS_DIR ]; then
-    mkdir "$PLUGINS_DIR"
-fi
+ZSH_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+[[ -d $ZSH_CACHE ]] || mkdir -p "$ZSH_CACHE"
+
+# Avoid $commands[...] in this file: its first use hashes every PATH dir, which on WSL
+# includes the huge /mnt/c Windows dirs (~400 ms). whence -p only stats what it needs.
+
+# Source the output of `<cmd> init ...`-style commands from a cache file instead of
+# running the command on every shell. The cache is regenerated when the binary changes.
+#   _cached_eval <name> <cmd> [args...]
+_cached_eval() {
+    local name=$1; shift
+    local bin=$1
+    [[ $bin == /* ]] || bin=$(whence -p "$1") || return 0
+    [[ -x $bin ]] || return 0
+    local cache="$ZSH_CACHE/$name.zsh"
+    if [[ ! -s $cache || $bin -nt $cache ]]; then
+        "$@" >| "$cache" 2>/dev/null
+    fi
+    source "$cache"
+}
 
 # REALLY IMPORTANT FOR AUTOCOMPLETE
 setopt interactivecomments
 
-# Check if .aliases exists and sources it
-[[ -f $HOME/.aliases ]] && source $HOME/.aliases
+# --- History ----------------------------------------------------------------
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt APPEND_HISTORY       # append new history entries to the history file
+setopt INC_APPEND_HISTORY   # save each command as soon as it is executed
+setopt HIST_IGNORE_DUPS     # ignore duplicate consecutive commands
+setopt HIST_IGNORE_SPACE    # ignore commands that start with a space
 
-# Check if .aliases.local exists and sources it
-# this can be used to set aliases for your specific environment
-[[ -f $HOME/.aliases.local ]] && source $HOME/.aliases.local
+# --- Completion -------------------------------------------------------------
+# fpath must be complete before compinit (which zsh-autocomplete runs itself).
+fpath=("$ZSH_CACHE/completions" $fpath)
+mkdir -p "$ZSH_CACHE/completions"
 
-[ -f "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ] && source "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
-[ -f "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && source "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
-[ -f "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ] && source "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
-
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-
-if command -v gcloud &> /dev/null; then
-    source /usr/lib/google-cloud-sdk/completion.bash.inc
+# gh: regenerate the completion file only when gh itself changes
+if _gh_bin=$(whence -p gh) && [[ ! -s $ZSH_CACHE/completions/_gh || $_gh_bin -nt $ZSH_CACHE/completions/_gh ]]; then
+    gh completion -s zsh >| "$ZSH_CACHE/completions/_gh"
 fi
 
-if command -v dbt &> /dev/null; then
-    [ -f ~/.dbt-completion.bash ] && source ~/.dbt-completion.bash
+# fast-syntax-highlighting must load before zsh-autocomplete, otherwise it warns
+# about autocomplete's widgets ("unhandled ZLE widget")
+[[ -f "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]] && source "$PLUGINS_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+
+if [[ -f "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ]]; then
+    # zsh-autocomplete calls compinit; calling it again breaks/slows it down
+    source "$PLUGINS_DIR/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+else
+    autoload -Uz compinit && compinit -C
+fi
+autoload -U +X bashcompinit && bashcompinit
+
+# bash-style completions (need bashcompinit first)
+if whence -p gcloud >/dev/null; then
+    for f in /usr/lib/google-cloud-sdk/completion.zsh.inc /usr/lib/google-cloud-sdk/completion.bash.inc; do
+        [[ -f $f ]] && { source "$f"; break; }
+    done
+fi
+
+if whence -p dbt >/dev/null; then
+    [[ -f ~/.dbt-completion.bash ]] && source ~/.dbt-completion.bash
     dbts() {
         dbt show --select "$1" --limit 1 --output json
     }
 fi
 
-# append new history entries to the history file
-setopt APPEND_HISTORY
+_cached_eval uv uv generate-shell-completion zsh
 
-# save each command to the history file as soon as it is executed
-setopt INC_APPEND_HISTORY
+# --- Plugins, aliases, keys -------------------------------------------------
+[[ -f "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && source "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# ignore recording duplicate consecutive commands in the history
-setopt HIST_IGNORE_DUPS
+# aliases (lfcd lives here too); .aliases.local is for machine-specific ones
+[[ -f $HOME/.aliases ]] && source $HOME/.aliases
+[[ -f $HOME/.aliases.local ]] && source $HOME/.aliases.local
 
-# ignore commands that start with a space in the history
-setopt HIST_IGNORE_SPACE
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
-if command -v gh &> /dev/null; then
-    mkdir -p ~/.zsh/completions
-    fpath+=~/.zsh/completions
-    gh completion -s zsh > ~/.zsh/completions/_gh
-fi
-
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-
-lfcd () {
-    cd "$(command lf -print-last-dir "$@")"
-}
-
-autoload -Uz compinit
-compinit
-autoload -U +X bashcompinit && bashcompinit
-
-if [ -x "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" ]; then
+if [[ -x "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" ]]; then
     export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
-elif command -v xdg-open >/dev/null 2>&1; then
-    export BROWSER="$(command -v xdg-open)"
+elif _xdg=$(whence -p xdg-open); then
+    export BROWSER="$_xdg"
 fi
 
-# Starts zoxide
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-fi
-
-# Starts starship
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
-fi
-
-[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+# --- Tool environments ------------------------------------------------------
+[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
 
 # Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+[[ -s "$HOME/.config/envman/load.sh" ]] && source "$HOME/.config/envman/load.sh"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+_cached_eval brew /home/linuxbrew/.linuxbrew/bin/brew shellenv
 
-if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-if command -v uv >/dev/null 2>&1; then
-    eval "$(uv generate-shell-completion zsh)"
-fi
-
+# nvm: loading nvm.sh costs a few hundred ms, so only do it when `nvm` is first used.
+# nvm's default node (or the newest installed, if the default is an alias like lts/*)
+# is put on PATH directly so node/npm/npx and global npm tools work right away.
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH="$HOME/.npm-global/bin:$PATH"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    _nvm_default=""
+    [[ -f "$NVM_DIR/alias/default" ]] && _nvm_default=${$(<"$NVM_DIR/alias/default")#v}
+    _nvm_bins=("$NVM_DIR"/versions/node/v${_nvm_default}*/bin(N/nOn))
+    (( ${#_nvm_bins} )) || _nvm_bins=("$NVM_DIR"/versions/node/*/bin(N/nOn))
+    (( ${#_nvm_bins} )) && path=("${_nvm_bins[1]}" $path)
+    unset _nvm_bins _nvm_default
+    nvm() {
+        unfunction nvm
+        source "$NVM_DIR/nvm.sh"
+        [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+        nvm "$@"
+    }
+fi
+
+# --- Prompt & navigation (last) ---------------------------------------------
+_cached_eval zoxide zoxide init zsh
+_cached_eval starship starship init zsh --print-full-init
+
+unset _gh_bin _xdg
