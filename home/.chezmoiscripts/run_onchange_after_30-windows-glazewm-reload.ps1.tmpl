@@ -1,0 +1,9 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Reloads GlazeWM when its config changes:
+# config.yaml sha256 {{ include "dot_glzr/glazewm/config.yaml" | sha256sum }}
+
+if (Get-Process glazewm -ErrorAction SilentlyContinue) {
+    glazewm.exe command wm-reload-config
+    Write-Host "GlazeWM config reloaded"
+}
+{{- end }}

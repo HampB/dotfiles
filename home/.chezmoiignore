@@ -1,0 +1,15 @@
+{{- /* Paths are target paths (relative to ~). This file is always a template. */ -}}
+
+{{ if ne .chezmoi.os "windows" }}
+# Windows-only: keyboard layers, GlazeWM, Zebar
+AppData
+.glzr
+{{ end }}
+
+{{ if eq .chezmoi.os "windows" }}
+# Linux/WSL/devcontainer-only shell setup
+.zshrc
+.aliases
+.config/lf
+.zsh_addons
+{{ end }}

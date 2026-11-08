@@ -1,0 +1,29 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Windows desktop tooling. Re-runs whenever this script changes.
+# winget returns non-zero for "already installed", so failures are reported, not fatal.
+
+$packages = @(
+    "AutoHotkey.AutoHotkey",   # keyboard layers
+    "glzr-io.glazewm",         # tiling window manager
+    "glzr-io.zebar",           # status bar
+    "Starship.Starship"        # prompt (shared config with Linux)
+)
+
+foreach ($id in $packages) {
+    if (winget list --id $id --exact --accept-source-agreements 2>$null | Select-String $id) {
+        Write-Host "ok        $id"
+        continue
+    }
+    Write-Host "installing $id"
+    winget install --id $id --exact --silent --accept-source-agreements --accept-package-agreements | Out-Null
+}
+
+# GlazeWM alt-tab helper (started by GlazeWM's startup_commands)
+if (-not (Get-Command gat-gwm -ErrorAction SilentlyContinue)) {
+    if (Get-Command cargo -ErrorAction SilentlyContinue) {
+        cargo install --git https://github.com/Dutch-Raptor/GAT-GWM.git
+    } else {
+        Write-Warning "gat-gwm not installed: needs Rust/cargo (winget install Rustlang.Rustup)"
+    }
+}
+{{- end }}

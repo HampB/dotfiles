@@ -1,0 +1,34 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Starts keyboard_layers.ahk at login via AutoHotkey64_UIA.exe (so the layers also
+# work in elevated windows) and restarts it. Re-runs when the script changes:
+# keyboard_layers.ahk sha256 {{ include "AppData/Roaming/keyboard_layers/keyboard_layers.ahk" | sha256sum }}
+
+$ErrorActionPreference = "Stop"
+
+$ahkExe = "C:\Program Files\AutoHotkey\v2\AutoHotkey64_UIA.exe"
+if (-not (Test-Path $ahkExe)) {
+    Write-Warning "AutoHotkey v2 UIA build not found at $ahkExe; skipping autostart setup"
+    exit 0
+}
+
+$script  = Join-Path $env:APPDATA "keyboard_layers\keyboard_layers.ahk"
+$startup = [Environment]::GetFolderPath("Startup")
+
+# Older setup copied the .ahk straight into Startup; remove it so it doesn't run twice.
+$legacy = Join-Path $startup "keyboard_layers.ahk"
+if (Test-Path $legacy) { Remove-Item $legacy; Write-Host "Removed old Startup copy: $legacy" }
+
+$shortcutPath = Join-Path $startup "keyboard_layers.lnk"
+$shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
+$shortcut.TargetPath = $ahkExe
+$shortcut.Arguments = "`"$script`""
+$shortcut.WorkingDirectory = Split-Path $script
+$shortcut.Save()
+
+# Restart: stop any running keyboard_layers instance, start the new one.
+Get-CimInstance Win32_Process -Filter "Name like 'AutoHotkey%'" |
+    Where-Object { $_.CommandLine -like "*keyboard_layers.ahk*" } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+Start-Process $shortcutPath
+Write-Host "keyboard_layers.ahk (re)started"
+{{- end }}

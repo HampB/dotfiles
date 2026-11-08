@@ -1,0 +1,27 @@
+{{- if ne .chezmoi.os "windows" -}}
+# zsh plugins, cloned and kept up to date by chezmoi (pulled at most once a week).
+
+[".zsh_addons/zsh-autosuggestions"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-autosuggestions.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1"]
+
+[".zsh_addons/zsh-autocomplete"]
+    type = "git-repo"
+    url = "https://github.com/marlonrichert/zsh-autocomplete.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1"]
+
+[".zsh_addons/fast-syntax-highlighting"]
+    type = "git-repo"
+    url = "https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1"]
+
+[".zsh_addons/fzf"]
+    type = "git-repo"
+    url = "https://github.com/junegunn/fzf.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1"]
+{{- end }}
