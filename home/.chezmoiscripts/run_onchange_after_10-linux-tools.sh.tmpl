@@ -52,6 +52,18 @@ has zoxide   || curl -sSfL "https://raw.githubusercontent.com/ajeetdsouza/zoxide
 has lf       || curl -sS "https://webi.sh/lf" | sh
 has starship || curl -sS "https://starship.rs/install.sh" | sh -s -- -y -b "$HOME/.local/bin"
 
+# atuin: release installer with --no-modify-path (setup.atuin.sh would append to the
+# chezmoi-managed ~/.zshrc). Installs to ~/.atuin/bin, which .zshrc puts on PATH.
+export PATH="$HOME/.atuin/bin:$PATH"
+if ! has atuin; then
+  curl --proto '=https' --tlsv1.2 -LsSf \
+    "https://github.com/atuinsh/atuin/releases/latest/download/atuin-installer.sh" | sh -s -- --no-modify-path
+fi
+# One-time import of the existing zsh history into atuin's database
+if has atuin && [ -f "$HOME/.zsh_history" ] && [ ! -f "$HOME/.local/share/atuin/history.db" ]; then
+  HISTFILE="$HOME/.zsh_history" atuin import zsh || true
+fi
+
 if [ ! -f "$HOME/.dbt-completion.bash" ]; then
   curl -fsSL "https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash" \
     -o "$HOME/.dbt-completion.bash"

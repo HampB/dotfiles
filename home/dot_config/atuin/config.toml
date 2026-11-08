@@ -1,0 +1,37 @@
+# atuin: shell history in SQLite with full-screen search (Ctrl+R).
+# Full reference: https://docs.atuin.sh/configuration/config/
+#
+# LOCAL ONLY for now: nothing leaves the machine until you log in.
+# To turn on sync later (end-to-end encrypted):
+#   atuin register -u <user> -e <email>     # first machine
+#   atuin key                               # prints the encryption key; save it in a password manager
+#   atuin login -u <user>                   # other machines (asks for the key)
+# Or point sync_address at a self-hosted server first.
+
+# Don't phone home on startup to check for new versions
+update_check = false
+
+# Fuzzy matching, like fzf
+search_mode = "fuzzy"
+
+# Start in "workspace" mode: inside a git repo you see the commands you ran in
+# that repo (e.g. your dbt runs); outside one it falls back to all history.
+# Press Ctrl+R again inside the search to cycle: global / host / session / directory / workspace.
+workspaces = true
+filter_mode = "workspace"
+
+# Compact UI that opens below the prompt instead of taking the whole screen
+style = "compact"
+inline_height = 20
+show_preview = true
+
+# Enter runs the selected command; Tab puts it on the prompt so you can edit it first
+enter_accept = true
+
+# Skip commands that look like they contain secrets (AWS keys, GitHub tokens, ...)
+secrets_filter = true
+
+# Never record these, on top of the secrets filter (regexes)
+history_filter = [
+    "^export .*(TOKEN|SECRET|PASSWORD|KEY)=",
+]

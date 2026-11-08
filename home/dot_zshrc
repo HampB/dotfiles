@@ -6,7 +6,7 @@ export SHELL=/bin/zsh
 
 # PATH: no duplicates, home bins first
 typeset -U path PATH
-path=("$HOME/bin" "$HOME/.local/bin" $path "$HOME/.npm-global/bin")
+path=("$HOME/bin" "$HOME/.local/bin" "$HOME/.atuin/bin" $path "$HOME/.npm-global/bin")
 
 PLUGINS_DIR="$HOME/.zsh_addons"
 ZSH_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
@@ -129,5 +129,9 @@ fi
 # --- Prompt & navigation (last) ---------------------------------------------
 _cached_eval zoxide zoxide init zsh
 _cached_eval starship starship init zsh --print-full-init
+
+# atuin: searchable shell history (Ctrl+R). Must come after fzf and zsh-autocomplete,
+# which also bind Ctrl+R. Up-arrow keeps its normal behaviour.
+_cached_eval atuin atuin init zsh --disable-up-arrow
 
 unset _gh_bin _xdg

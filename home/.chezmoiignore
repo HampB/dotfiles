@@ -11,5 +11,6 @@ AppData
 .zshrc
 .aliases
 .config/lf
+.config/atuin
 .zsh_addons
 {{ end }}

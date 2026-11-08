@@ -11,6 +11,7 @@ Replaces [devcontainer-dotfiles](https://github.com/HampB/devcontainer-dotfiles)
 |---|---|---|
 | Prompt: starship (`dot_config/starship.toml`) | ✓ | ✓ |
 | Git: aliases + defaults (`dot_config/git/config`) | ✓ | ✓ |
+| History: atuin, local only (`dot_config/atuin`) | | ✓ |
 | Shell: zsh, aliases, plugins, lf | | ✓ |
 | Keyboard layers: AutoHotkey (`AppData/Roaming/keyboard_layers`) | ✓ | |
 | Tiling WM: GlazeWM (`dot_glzr/glazewm`) | ✓ | |
