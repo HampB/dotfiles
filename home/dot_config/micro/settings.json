@@ -1,0 +1,7 @@
+{
+    "clipboard": "terminal",
+    "colorscheme": "simple",
+    "lsp.server": "python=basedpyright-langserver --stdio,go=gopls,typescript=deno lsp={\"importMap\": \"./import_map.json\"}",
+    "scrollmargin": 8,
+    "tabstospaces": true
+}

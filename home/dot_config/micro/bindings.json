@@ -1,0 +1,17 @@
+{
+    "Alt-/": "lua:comment.comment",
+    "Alt-d": "command:definition",
+    "Alt-f": "WordRight",
+    "Alt-g": "command:format",
+    "Alt-h": "command:hover",
+    "Alt-k": "command:hover",
+    "Alt-p": "SelectAll,command:textfilter ruff format -q --stdin-filename file.py -,Deselect",
+    "Alt-r": "command:references",
+    "Ctrl-d": "SpawnMultiCursor",
+    "CtrlDown": "CursorDown,CursorDown,CursorDown,CursorDown,CursorDown,CursorDown,CursorDown,CursorDown,CursorDown,CursorDown",
+    "CtrlShiftDown": "SelectDown,SelectDown,SelectDown,SelectDown,SelectDown,SelectDown,SelectDown,SelectDown,SelectDown,SelectDown",
+    "CtrlShiftUp": "SelectUp,SelectUp,SelectUp,SelectUp,SelectUp,SelectUp,SelectUp,SelectUp,SelectUp,SelectUp",
+    "CtrlSpace": "command:lspcompletion",
+    "CtrlUnderscore": "lua:comment.comment",
+    "CtrlUp": "CursorUp,CursorUp,CursorUp,CursorUp,CursorUp,CursorUp,CursorUp,CursorUp,CursorUp,CursorUp"
+}
