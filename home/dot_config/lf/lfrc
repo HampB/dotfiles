@@ -7,12 +7,15 @@ map . set hidden!
 map a :push %mkdir<space>
 map <enter> shell
 
-map o &code $f
+# Edit in micro regardless of $EDITOR (o, e and E all work)
+map o $micro "$f"
+map e $micro "$f"
+map E $micro "$f"
 # map O $mimeopen --ask $f
 
 cmd open &{{
     case $(file --mime-type -Lb $f) in
-        text/*) lf -remote "send $id \$$EDITOR \$fx";;
+        text/*) lf -remote "send $id \$micro \$fx";;
         *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
     esac
 }}
@@ -26,6 +29,30 @@ cmd delete ${{
 }}
 
 map <delete> delete
+
+# gf: fuzzy-find a file name anywhere below here (respects .gitignore), jump to it in lf.
+cmd fzf_jump ${{
+    res="$(rg --files --hidden --glob '!.git' | fzf --reverse --header='Jump to file' --preview 'head -200 {}')"
+    if [ -n "$res" ]; then
+        res="$(printf '%s' "$res" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+        lf -remote "send $id select \"$res\""
+    fi
+}}
+map gf :fzf_jump
+
+# gs: live ripgrep over file contents, Enter opens micro at the matching line.
+cmd fzf_search ${{
+    RG="rg --column --line-number --no-heading --color=never --smart-case"
+    sel="$(fzf --disabled --layout=reverse --delimiter='\t' --with-nth=2.. \
+        --header='Search contents' \
+        --bind "change:reload:$RG {q} | rgfmt || true" \
+        --preview 'rgpreview {1}' --preview-window=right:55%)"
+    if [ -n "$sel" ]; then
+        loc="${sel%%	*}"
+        micro "+${loc##*:}" "${loc%:*}"
+    fi
+}}
+map gs :fzf_search
 
 lfcd () {
     # `command` is needed in case `lfcd` is aliased to `lf`

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Preview for lf's gs: full path, then the lines around the match. Arg: path:line
+f="${1%:*}"; l="${1##*:}"
+printf '%s\n\n' "$f"
+awk -v l="$l" 'NR >= l-8 && NR <= l+20 { printf "%s%5d  %s\n", (NR == l ? ">" : " "), NR, $0 }' "$f"

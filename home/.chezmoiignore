@@ -11,6 +11,8 @@ AppData
 .zshrc
 .aliases
 .config/lf
+.local/bin/rgfmt
+.local/bin/rgpreview
 .config/atuin
 .zsh_addons
 {{ end }}

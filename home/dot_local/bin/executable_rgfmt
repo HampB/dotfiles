@@ -1,0 +1,16 @@
+#!/usr/bin/awk -f
+# Reformat `rg --column --line-number --no-heading` output for fzf (used by lf's gs).
+# in : path:line:col:text
+# out: path:line <TAB> short/path/tail:line <TAB> text      (fzf shows fields 2.., uses field 1)
+BEGIN { FS = ":"; OFS = "\t" }
+{
+    path = $1; line = $2
+    text = $0
+    sub(/^[^:]*:[^:]*:[^:]*:/, "", text)
+    sub(/^[ \t]+/, "", text)
+    n = split(path, a, "/")
+    short = a[n]
+    if (n >= 2) short = a[n - 1] "/" short
+    if (n >= 3) short = a[n - 2] "/" short
+    print path ":" line, short ":" line, text
+}
